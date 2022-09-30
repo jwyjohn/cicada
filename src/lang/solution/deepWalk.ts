@@ -4,6 +4,7 @@ import { Ctx, CtxCons, ctxNames } from "../ctx"
 import * as Errors from "../errors"
 import { Mod } from "../mod"
 import * as Neutrals from "../neutral"
+import { evaluateNeutral } from "../neutral"
 import { deepWalkNeutral, deepWalkProperties, deepWalkType } from "../solution"
 import * as Values from "../value"
 import { readback, readbackType, Value } from "../value"
@@ -26,7 +27,11 @@ export function deepWalk(mod: Mod, ctx: Ctx, type: Value, value: Value): Value {
 
   switch (value.kind) {
     case "TypedNeutral": {
-      return deepWalkNeutral(mod, ctx, value.type, value.neutral)
+      let evalNeutralRes = evaluateNeutral(mod, ctx, value.type, value.neutral)
+      if (evalNeutralRes !== undefined) {
+        console.log(evalNeutralRes)
+        return deepWalk(mod, ctx, value.type, evalNeutralRes)
+      } else return deepWalkNeutral(mod, ctx, value.type, value.neutral)
     }
 
     case "Type": {
